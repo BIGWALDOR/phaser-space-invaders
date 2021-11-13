@@ -57,9 +57,16 @@
       }
 
       function update() {
-        if (leftKey.isDown) {
+        if (
+          leftKey.isDown &&
+          player.x > 0 + player.displayWidth * player.originX
+        ) {
           player.x -= 5;
-        } else if (rightKey.isDown) {
+        } else if (
+          rightKey.isDown &&
+          player.x <
+            this.sys.canvas.width - player.displayWidth * player.originX
+        ) {
           player.x += 5;
         }
       }
