@@ -26,27 +26,32 @@
           update: update,
 
           extend: {
-            makePlayer: makePlayer,
+            makeSpaceShip,
           },
         },
       };
 
+      var sky, ship, cursors;
       var game = new Phaser.Game(config);
-      var player;
       var leftKey;
       var rightKey;
 
       function preload() {
-        this.load.image("player", "./assets/spaceship.png");
+        this.load.image("sky", "./assets/sky.jpeg");
+        this.load.image("ship", "./assets/spaceship.png");
       }
 
       function create() {
-        player = this.makePlayer(
+        sky = this.add.image(700, 350, "sky");
+        ship = this.makeSpaceShip(
           this.sys.canvas.width / 2,
           this.sys.canvas.height
         );
 
-        player.setScale(0.2);
+        ship.setScale(0.2);
+
+        cursors = this.input.keyboard.createCursorKeys();
+        this.input.on("pointerdown", shoot, this);
 
         leftKey = this.input.keyboard.addKey(
           Phaser.Input.Keyboard.KeyCodes.LEFT
@@ -57,24 +62,23 @@
       }
 
       function update() {
-        if (
-          leftKey.isDown &&
-          player.x > 0 + player.displayWidth * player.originX
-        ) {
-          player.x -= 5;
+        if (leftKey.isDown && ship.x > 0 + ship.displayWidth * ship.originX) {
+          ship.x -= ship.props.speed;
         } else if (
           rightKey.isDown &&
-          player.x <
-            this.sys.canvas.width - player.displayWidth * player.originX
+          ship.x < this.sys.canvas.width - ship.displayWidth * ship.originX
         ) {
-          player.x += 5;
+          ship.x += ship.props.speed;
         }
       }
 
-      function makePlayer(x, y) {
-        var player = this.add.image(x, y, "player").setOrigin(0.5, 1);
+      function makeSpaceShip(x, y) {
+        var ship = this.add.image(x, y, "ship").setOrigin(0.5, 1);
+        ship.props = {
+          speed: 5,
+        };
 
-        return player;
+        return ship;
       }
     </script>
   </body>
