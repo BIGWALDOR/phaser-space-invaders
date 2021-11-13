@@ -24,16 +24,36 @@
           preload: preload,
           create: create,
           update: update,
+
+          extend: {
+            makePlayer: makePlayer,
+          },
         },
       };
 
       var game = new Phaser.Game(config);
+      var player;
 
-      function preload() {}
+      function preload() {
+        this.load.image("player", "./assets/spaceship.png");
+      }
 
-      function create() {}
+      function create() {
+        player = this.makePlayer(
+          this.sys.canvas.width / 2,
+          this.sys.canvas.height / 2
+        );
+
+        player.setScale(0.25);
+      }
 
       function update() {}
+
+      function makePlayer(x, y) {
+        var player = this.add.image(x, y, "player").setOrigin(0.5, 1);
+
+        return player;
+      }
     </script>
   </body>
 </html>
