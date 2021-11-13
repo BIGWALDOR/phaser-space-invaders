@@ -33,6 +33,8 @@
 
       var game = new Phaser.Game(config);
       var player;
+      var leftKey;
+      var rightKey;
 
       function preload() {
         this.load.image("player", "./assets/spaceship.png");
@@ -41,13 +43,26 @@
       function create() {
         player = this.makePlayer(
           this.sys.canvas.width / 2,
-          this.sys.canvas.height / 2
+          this.sys.canvas.height
         );
 
-        player.setScale(0.25);
+        player.setScale(0.2);
+
+        leftKey = this.input.keyboard.addKey(
+          Phaser.Input.Keyboard.KeyCodes.LEFT
+        );
+        rightKey = this.input.keyboard.addKey(
+          Phaser.Input.Keyboard.KeyCodes.RIGHT
+        );
       }
 
-      function update() {}
+      function update() {
+        if (leftKey.isDown) {
+          player.x -= 5;
+        } else if (rightKey.isDown) {
+          player.x += 5;
+        }
+      }
 
       function makePlayer(x, y) {
         var player = this.add.image(x, y, "player").setOrigin(0.5, 1);
