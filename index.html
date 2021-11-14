@@ -29,7 +29,9 @@
 
       var sky;
       var ship;
+      var speed;
       var bullets;
+      var lastFired = 0;
       var leftKey;
       var rightKey;
       var fire;
@@ -39,7 +41,7 @@
       function preload() {
         this.load.image("sky", "./assets/sky.jpeg");
         this.load.image("ship", "./assets/spaceship.png");
-        this.load.image("laser-bullet", "./assets/laser-bullet.png");
+        this.load.image("bullet", "./assets/bullet.png");
       }
 
       function create() {
@@ -47,7 +49,14 @@
           Extends: Phaser.Physics.Arcade.Image,
 
           initialize: function Bullet(scene) {
-            Phaser.Physics.Arcade.Image.call(this, scene, 0, 0, "laser-bullet");
+            Phaser.Physics.Arcade.Image.call(
+              this,
+              scene,
+              0,
+              0,
+
+              "bullet"
+            );
 
             this.setBlendMode(1);
             this.setDepth(1);
@@ -65,9 +74,16 @@
             this.setVisible(true);
             this.setPosition(ship.x, ship.y);
             this.body.reset(ship.x, ship.y);
+          },
 
-            this.body.velocity.x *= 2;
-            this.body.velocity.y *= 2;
+          update: function (time, delta) {
+            this.lifespan -= delta;
+
+            if (this.lifespan <= 0) {
+              this.setActive(false);
+              this.setVisible(false);
+              this.body.stop();
+            }
           },
         });
 
@@ -90,23 +106,26 @@
           Phaser.Input.Keyboard.KeyCodes.RIGHT
         );
         fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        speed = Phaser.Math.GetSpeed(300, 1);
       }
 
       function update(time, delta) {
         if (leftKey.isDown && ship.x > 0 + ship.displayWidth * ship.originX) {
-          ship.x -= 5;
+          ship.x -= speed * delta;
         } else if (
           rightKey.isDown &&
           ship.x < this.sys.canvas.width - ship.displayWidth * ship.originX
         ) {
-          ship.x += 5;
+          ship.x += speed * delta;
         }
 
-        if (fire.isDown) {
+        if (fire.isDown && time > lastFired) {
           var bullet = bullets.get();
 
           if (bullet) {
-            bullet.fire(ship);
+            bullet.fire(ship.x, ship.y);
+
+            lastFired = time + 100;
           }
         }
       }
