@@ -30,7 +30,7 @@
       var sky;
       var ship;
       var speed;
-      var bullets;
+      var bullets = null;
       var lastFired = 0;
       var leftKey;
       var rightKey;
@@ -45,58 +45,9 @@
       }
 
       function create() {
-        var Bullet = new Phaser.Class({
-          Extends: Phaser.Physics.Arcade.Image,
-
-          initialize: function Bullet(scene) {
-            Phaser.Physics.Arcade.Image.call(
-              this,
-              scene,
-              0,
-              0,
-
-              "bullet"
-            );
-
-            this.setBlendMode(1);
-            this.setDepth(1);
-
-            this.speed = 1000;
-            this.lifespan = 1000;
-
-            this._temp = new Phaser.Math.Vector2();
-          },
-
-          fire: function (ship) {
-            this.lifespan = 1000;
-
-            this.setActive(true);
-            this.setVisible(true);
-            this.setPosition(ship.x, ship.y);
-            this.body.reset(ship.x, ship.y);
-          },
-
-          update: function (time, delta) {
-            this.lifespan -= delta;
-
-            if (this.lifespan <= 0) {
-              this.setActive(false);
-              this.setVisible(false);
-              this.body.stop();
-            }
-          },
-        });
-
         sky = this.add.image(700, 350, "sky");
         ship = this.add.image(400, 600, "ship").setOrigin(0.5, 1);
         ship.setScale(0.2);
-
-        // Bullets
-        bullets = this.physics.add.group({
-          classType: Bullet,
-          maxSize: 30,
-          runChildUpdate: true,
-        });
 
         // Controls config
         leftKey = this.input.keyboard.addKey(
@@ -106,27 +57,32 @@
           Phaser.Input.Keyboard.KeyCodes.RIGHT
         );
         fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        speed = Phaser.Math.GetSpeed(300, 1);
       }
 
       function update(time, delta) {
+        // Move ship
         if (leftKey.isDown && ship.x > 0 + ship.displayWidth * ship.originX) {
-          ship.x -= speed * delta;
+          ship.x -= 5;
         } else if (
           rightKey.isDown &&
           ship.x < this.sys.canvas.width - ship.displayWidth * ship.originX
         ) {
-          ship.x += speed * delta;
+          ship.x += 5;
         }
 
+        // Fire bullet
         if (fire.isDown && time > lastFired) {
-          var bullet = bullets.get();
-
-          if (bullet) {
-            bullet.fire(ship.x, ship.y);
-
-            lastFired = time + 100;
+          lastFired = time + 500;
+          if (bullets === null) {
+            bullets = this.physics.add.group({
+              defaultKey: "bullet",
+              maxSize: 100,
+            });
           }
+          var bullet = bullets.create(ship.x, ship.y, "bullet");
+          bullet.setVelocityY(-800);
+          // Prevent bullet from falling back down
+          bullet.body.allowGravity = false;
         }
       }
     </script>
